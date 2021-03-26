@@ -1,0 +1,5 @@
+C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin\mingw32-make.exe --dry-run --keep-going --print-directory
+mingw32-make: Entering directory 'c:/Users/klaus/OneDrive/Dokumente/chess/CChess'
+g++ -g -Wall -Wextra -Wpedantic -DDEBUG -o main main.cpp bitboards.cpp position.cpp movegen.cpp evaluation.cpp search.cpp uci.cpp tt.cpp zobrist.cpp material.cpp movepick.cpp
+mingw32-make: Leaving directory 'c:/Users/klaus/OneDrive/Dokumente/chess/CChess'
+ 

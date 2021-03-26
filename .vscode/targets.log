@@ -1,0 +1,273 @@
+C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin\mingw32-make.exe all --print-data-base --no-builtin-variables --no-builtin-rules --question
+mingw32-make: *** No rule to make target 'all'.  Stop.
+ 
+# GNU Make 4.2.1
+# Built for x86_64-w64-mingw32
+# Copyright (C) 1988-2016 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Thu Mar 25 21:58:14 2021
+
+# Variables
+
+# 'override' directive
+GNUMAKEFLAGS := 
+# automatic
+<D = $(patsubst %/,%,$(patsubst %\,%,$(dir $<)))
+# automatic
+?F = $(notdir $?)
+# environment
+CommonProgramFiles = C:\Program Files\Common Files
+# default
+.SHELLFLAGS := -c
+# makefile
+MAKEFLAGS = pqrR
+# automatic
+?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
+# automatic
+@D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
+# environment
+HOMEDRIVE = C:
+# automatic
+@F = $(notdir $@)
+# automatic
+^D = $(patsubst %/,%,$(patsubst %\,%,$(dir $^)))
+# makefile
+CURDIR := c:/Users/klaus/OneDrive/Dokumente/chess/CChess
+# default
+SHELL := sh.exe
+# environment
+ProgramFiles(x86) = C:\Program Files (x86)
+# environment
+VSCODE_NLS_CONFIG = {"locale":"de","availableLanguages":{},"_languagePackSupport":true}
+# environment
+PATHEXT = .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW
+# makefile (from 'makefile', line 1)
+MAKEFILE_LIST :=  makefile
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
+# environment
+VSCODE_NODE_CACHED_DATA_DIR = C:\Users\klaus\AppData\Roaming\Code\CachedData\ea3859d4ba2f3e577a159bc91e3074c5d85c0523
+# environment
+TMP = C:\Users\klaus\AppData\Local\Temp
+# environment
+SystemDrive = C:
+# environment
+CommonProgramFiles(x86) = C:\Program Files (x86)\Common Files
+# environment
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-3bffe75c-d0f2-491b-b9b7-b56d5ca9ad1a-sock
+# environment
+VSCODE_CWD = C:\WINDOWS\system32
+# environment
+SystemRoot = C:\WINDOWS
+# default
+MAKE_HOST := x86_64-w64-mingw32
+# environment
+PATH = C:\Python39\Scripts\;C:\Python39\;C:\Perl64\site\bin;C:\Perl64\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Program Files\MiKTeX 2.9\miktex\bin\x64\;C:\Program Files\Git\cmd;C:\Users\klaus\AppData\Local\Programs\Python\Python37\Scripts;C:\Users\klaus\AppData\Local\Programs\Python\Python37;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Users\klaus\AppData\Roaming\Python\Python39\Scripts;C:\Program Files\dotnet\;C:\Program Files (x86)\dotnet\;C:\Users\klaus\.elan\bin;C:\Users\klaus\AppData\Local\Microsoft\WindowsApps;C:\Users\klaus\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\klaus\AppData\Roaming\npm;C:\Users\klaus\.dotnet\tools;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
+# environment
+PROCESSOR_ARCHITECTURE = AMD64
+# environment
+USERPROFILE = C:\Users\klaus
+# environment
+ALLUSERSPROFILE = C:\ProgramData
+# environment
+ComSpec = C:\WINDOWS\system32\cmd.exe
+# environment
+VSCODE_LOG_STACK = false
+# environment
+NUMBER_OF_PROCESSORS = 8
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync
+# environment
+ProgramW6432 = C:\Program Files
+# automatic
+%F = $(notdir $%)
+# environment
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_12592_PTEGRYCXVADCSQBZ
+# environment
+COMPUTERNAME = DESKTOP-TPTD2AP
+# default
+.LOADED := 
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+USERNAME = klaus
+# environment
+PUBLIC = C:\Users\Public
+# environment
+ChocolateyLastPathUpdate = 132526981653964560
+# environment
+CommonProgramW6432 = C:\Program Files\Common Files
+# environment
+ProgramData = C:\ProgramData
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+LOGONSERVER = \\DESKTOP-TPTD2AP
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# environment
+USERDOMAIN = DESKTOP-TPTD2AP
+# environment
+MAKELEVEL := 0
+# environment
+VERBOSE_LOGGING = true
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# default
+MAKE_VERSION := 4.2.1
+# environment
+AMD_ENTRYPOINT = vs/workbench/services/extensions/node/extensionHostProcess
+# makefile
+.DEFAULT_GOAL := debug
+# environment
+OneDrive = C:\Users\klaus\OneDrive
+# environment
+PIPE_LOGGING = true
+# automatic
+%D = $(patsubst %/,%,$(patsubst %\,%,$(dir $%)))
+# environment
+DriverData = C:\Windows\System32\Drivers\DriverData
+# environment
+LOCALAPPDATA = C:\Users\klaus\AppData\Local
+# default
+MAKE_COMMAND := C:/Program Files/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/mingw32-make
+# environment
+OneDriveConsumer = C:\Users\klaus\OneDrive
+# default
+.VARIABLES := 
+# automatic
+*F = $(notdir $*)
+# environment
+PROCESSOR_IDENTIFIER = AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD
+# environment
+OS = Windows_NT
+# environment
+VSCODE_IPC_HOOK = \\.\pipe\326d09d9753549efa88b7fc962a5265a-1.52.1-main-sock
+# environment
+HOMEPATH = \Users\klaus
+# environment
+PROMPT = $P$G
+# environment
+MFLAGS = -pqrR
+# automatic
+*D = $(patsubst %/,%,$(patsubst %\,%,$(dir $*)))
+# environment
+PSModulePath = %ProgramFiles%\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+# automatic
++D = $(patsubst %/,%,$(patsubst %\,%,$(dir $+)))
+# environment
+windir = C:\WINDOWS
+# automatic
++F = $(notdir $+)
+# default
+SUFFIXES := 
+# environment
+APPDATA = C:\Users\klaus\AppData\Roaming
+# environment
+TEMP = C:\Users\klaus\AppData\Local\Temp
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# automatic
+^F = $(notdir $^)
+# environment
+ProgramFiles = C:\Program Files
+# environment
+PROCESSOR_REVISION = 1801
+# default
+.RECIPEPREFIX := 
+# environment
+ChocolateyInstall = C:\ProgramData\chocolatey
+# environment
+PROCESSOR_LEVEL = 23
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
+# environment
+VSCODE_PID = 12592
+# environment
+USERDOMAIN_ROAMINGPROFILE = DESKTOP-TPTD2AP
+# variable set hash-table stats:
+# Load=91/1024=9%, Rehash=0, Collisions=17/112=15%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (key c:/Users/klaus/OneDrive/Dokumente/chess/CChess, mtime 1616705860): 28 files, no impossibilities.
+
+# 28 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+# No implicit rules.
+
+# Files
+
+# Not a target:
+all:
+#  Command line target.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has not been updated.
+
+debug:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 2):
+	g++ -g -Wall -Wextra -Wpedantic -DDEBUG -o main main.cpp bitboards.cpp position.cpp movegen.cpp evaluation.cpp search.cpp uci.cpp tt.cpp zobrist.cpp material.cpp movepick.cpp
+
+# Not a target:
+makefile:
+#  Implicit rule search has been done.
+#  Last modified 2021-03-25 21:57:18
+#  File has been updated.
+#  Successfully updated.
+
+release:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 4):
+	g++ -g -O3 -Wall -Wextra -pedantic -o main main.cpp bitboards.cpp position.cpp movegen.cpp evaluation.cpp search.cpp uci.cpp tt.cpp zobrist.cpp material.cpp movepick.cpp
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 6):
+	rm -f *.o main.exe
+
+# files hash-table stats:
+# Load=7/1024=1%, Rehash=0, Collisions=0/17=0%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 34 / storage = 316 B / avg = 9 B
+# current buf: size = 8162 B / used = 316 B / count = 34 / avg = 9 B
+
+# strcache performance: lookups = 40 / hit rate = 15%
+# hash-table stats:
+# Load=34/8192=0%, Rehash=0, Collisions=1/40=3%
+# Finished Make data base on Thu Mar 25 21:58:14 2021
+
+ 

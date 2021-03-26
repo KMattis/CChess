@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "bit": "cpp",
+        "xstring": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "system_error": "cpp",
+        "bitset": "cpp",
+        "initializer_list": "cpp",
+        "type_traits": "cpp",
+        "xutility": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "utility": "cpp"
+    }
+}
