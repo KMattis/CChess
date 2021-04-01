@@ -6,7 +6,7 @@ int TranspositionTableEntry::get_score(int alpha, int beta, Depth depth)
 {
     if(this->depth < depth)
         return LOOKUP_FAILED;
-    //TODO: Is this correct?
+
     switch(this->type)
     {
         case Exact: return this->score;
@@ -23,7 +23,7 @@ int TranspositionTableEntry::get_score(int alpha, int beta, Depth depth)
 
 TranspositionTableEntry *TranspositionTable::get_entry(Key key)
 {
-    int index = key % this->num_entries;
+    Key index = key & (this->num_entries - 1);
     TranspositionTableEntry entry = this->data[index];
     if(entry.key == key)
     {
@@ -64,6 +64,7 @@ void TranspositionTable::store(Key key, TranspositionTableEntryType type, int sc
     }
     else
     { 
+        //The old entry and the new one describe the same position
         if(insertion_ply > this->data[index].insertion_ply)
         {
             //Overwrite old data
@@ -74,8 +75,7 @@ void TranspositionTable::store(Key key, TranspositionTableEntryType type, int sc
             this->data[index].depth = depth;
             this->data[index].insertion_ply = insertion_ply;
         }
-        //The old entry and the new one describe the same position
-        if(depth >= this->data[index].depth)
+        else if(depth >= this->data[index].depth)
         {
             //we searched at least as deep as the old entry
             if(type == Exact)
@@ -121,12 +121,12 @@ int TranspositionTable::find_pv(Position *pos, Move *pv)
         if(entry->type != Exact) break;
         if(entry->pv_move == 0)
         {
-            printf("Exact stored no move?");
+            printf("Exact stored no move?\n");
             break;
         }
 
         //Check if move exists and is legal (to avoid key hash hits)
-        MoveList moves(pos);
+        MoveList moves(pos, false);
         bool exists = false;
         for(int i = 0; i < moves.size; i++)
             if(moves.moveList[i].move == entry->pv_move)

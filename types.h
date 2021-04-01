@@ -2,7 +2,7 @@
 #define TYPES_H
 
 #ifdef DEBUG
-#define ASSERT(cond) if(!(cond)) printf("Condition failed, %s\n", #cond);
+#define ASSERT(cond) if(!(cond)) printf("Condition failed, %s, at line: %d\n", #cond, __LINE__);
 #else
 #define ASSERT(cond)
 #endif
@@ -133,7 +133,7 @@ const unsigned int BLACK_QUEENSIDE_CASTELING = 0x8;
 
 const unsigned int WHITE_CASTELING = WHITE_KINGSIDE_CASTELING | WHITE_QUEENSIDE_CASTELING;
 const unsigned int BLACK_CASTELING = BLACK_KINGSIDE_CASTELING | BLACK_QUEENSIDE_CASTELING;
-
+const unsigned int CASTELING[2] = { WHITE_CASTELING, BLACK_CASTELING };
 
 typedef short Depth;
 typedef unsigned long long Key;

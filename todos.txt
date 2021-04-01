@@ -1,0 +1,8 @@
+Generate only captures & promotions in QSearch (of, if in check, all legal moves. Here we can do a checkmate check, but there won't be stalemate checks)
+Faster Move Ordering -> Might be done by first sorting the move list
+Position initialisation: read EnPassent and ply from fen
+Read timeleft/increment from UCI, manage the time
+Endgame scores
+Different pruning methods in endgames
+Tablebases (at least 5 men)
+Pawn evaluation tables

@@ -28,6 +28,14 @@ Bitboard isolated_pawn_bitboards[64];
 Bitboard doubled_pawn_bitboards[2][64];
 Bitboard passed_pawn_bitboards[2][64];
 
+Bitboard kingside_flank;
+Bitboard queenside_flank;
+Bitboard center_files;
+Bitboard white_kingside_pawnshield;
+Bitboard white_queenside_pawnshield;
+Bitboard black_kingside_pawnshield;
+Bitboard black_queenside_pawnshield;
+
 int manhattan_distance[64][64];
 
 template<>
@@ -176,18 +184,18 @@ Bitboard get_bishop_attacks_slow(int square, Bitboard blockers)
 
 void init_rook_magic_table() {
     for (int square = 0; square < 64; square++) {
-        for (int blockerIndex = 0; blockerIndex < (1 << rook_index_bits[square]); blockerIndex++) {
+        for (int blockerIndex = 0; blockerIndex < (1 << (64 - rook_index_bits[square])); blockerIndex++) {
             Bitboard blockers = get_blockers_from_index(blockerIndex, rook_occupancy_bitboards[square]);
-            rook_attack_table[square][(blockers * rook_magics[square]) >> (64 - rook_index_bits[square])] = get_rook_attacks_slow(square, blockers);
+            rook_attack_table[square][(blockers * rook_magics[square]) >> rook_index_bits[square]] = get_rook_attacks_slow(square, blockers);
         }
     }
 }
 
 void init_bishop_magic_table() {
     for (int square = 0; square < 64; square++) {
-        for (int blockerIndex = 0; blockerIndex < (1 << bishop_index_bits[square]); blockerIndex++) {
+        for (int blockerIndex = 0; blockerIndex < (1 << (64 - bishop_index_bits[square])); blockerIndex++) {
             Bitboard blockers = get_blockers_from_index(blockerIndex, bishop_occupancy_bitboards[square]);
-            bishop_attack_table[square][(blockers * bishop_magics[square]) >> (64 - bishop_index_bits[square])] = get_bishop_attacks_slow(square, blockers);
+            bishop_attack_table[square][(blockers * bishop_magics[square]) >> bishop_index_bits[square]] = get_bishop_attacks_slow(square, blockers);
         }
     }
 }
@@ -411,19 +419,28 @@ void init_bitboards()
             manhattan_distance[from][to] = r_dist + f_dist;
         }
     }
+
+    //flank bitboards
+    queenside_flank = file_bitboards[a1] | file_bitboards[b1] | file_bitboards[c1];
+    kingside_flank  = file_bitboards[f1] | file_bitboards[g1] | file_bitboards[h1];
+    center_files    = file_bitboards[d1] | file_bitboards[e1];
+    white_kingside_pawnshield  = kingside_flank  & (rank_bitboards[a2] | rank_bitboards[a3]);
+    white_queenside_pawnshield = queenside_flank & (rank_bitboards[a2] | rank_bitboards[a3]);
+    black_kingside_pawnshield  = kingside_flank  & (rank_bitboards[a7] | rank_bitboards[a6]);
+    black_queenside_pawnshield = queenside_flank & (rank_bitboards[a7] | rank_bitboards[a6]);
 }
 
 Bitboard bishop_attack_bb(Square s, Bitboard blockers)
 {
     blockers &= bishop_occupancy_bitboards[s];
-    Bitboard key = (blockers * bishop_magics[s]) >> (64 - bishop_index_bits[s]); //TODO do this 64 - calculation not every call?
+    Bitboard key = (blockers * bishop_magics[s]) >> bishop_index_bits[s];
     return bishop_attack_table[s][key];
 }
 
 Bitboard rook_attack_bb(Square s, Bitboard blockers)
 {
     blockers &= rook_occupancy_bitboards[s];
-    Bitboard key = (blockers * rook_magics[s]) >> (64 - rook_index_bits[s]);
+    Bitboard key = (blockers * rook_magics[s]) >> rook_index_bits[s];
     return rook_attack_table[s][key];
 }
 

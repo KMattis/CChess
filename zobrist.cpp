@@ -4,8 +4,6 @@
 
 namespace zobrist
 {
-
-    //TODO is this good?
     Key get_random_key()
     {
         return (((Key)(unsigned int)rand() << 32) + ((Key)(unsigned int)rand() << 24) + ((Key)(unsigned int)rand() << 16) + (Key)(unsigned int)rand());

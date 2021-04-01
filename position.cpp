@@ -25,7 +25,7 @@ void print_move_(Move move)
 }
 
 bool Position::is_pseudo_legal(Move move)
-{
+{ 
     Square from = from_square(move);
     Square to = to_square(move);
     Piece moved = this->board[from];
@@ -38,6 +38,38 @@ bool Position::is_pseudo_legal(Move move)
 
     if(moved == WHITE_KING || moved == BLACK_KING)
     {
+        if(is_casteling(move))
+        {
+            if(this->current_state->in_check) return false;
+            if(to == g1){
+                if (!(this->current_state->casteling_rights & WHITE_KINGSIDE_CASTELING)) return false;
+                Bitboard f1_g1 = (1ull << f1) | (1ull << g1);
+                return (f1_g1 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (f1_g1 & this->current_state->blocker_bitboard) == 0;
+            }
+            else if (to == c1)
+            {
+                if (!(this->current_state->casteling_rights & WHITE_QUEENSIDE_CASTELING)) return false;
+                Bitboard c1_d1 = (1ull << c1) | (1ull << d1);
+                Bitboard b1_c1_d1 = (1ull << b1) | c1_d1;
+                return (c1_d1 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (b1_c1_d1 & this->current_state->blocker_bitboard) == 0;
+            }
+            else if(to == g8)
+            {
+                if (!(this->current_state->casteling_rights & BLACK_KINGSIDE_CASTELING)) return false;
+                Bitboard f8_g8 = (1ull << f8) | (1ull << g8);
+                return (f8_g8 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (f8_g8 & this->current_state->blocker_bitboard) == 0;
+            }
+            else if(to == c8)
+            {
+                if (!(this->current_state->casteling_rights & BLACK_QUEENSIDE_CASTELING)) return false;
+                Bitboard c8_d8 = (1ull << c8) | (1ull << d8);
+                Bitboard b8_c8_d8 = (1ull << b8) | c8_d8;
+                return (c8_d8 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (b8_c8_d8 & this->current_state->blocker_bitboard) == 0;    
+            }
+            else 
+                return false;
+        }
+
         //Target square is not attacked. We need not check if the king move is pseudolegal, this is guaranteeed by move generation, and does not depend on the position
         return !get_square(this->current_state->attack_bitboards[~this->color_to_move], to);
     }
@@ -74,39 +106,6 @@ bool Position::is_legal(Move move)
 
     ASSERT(a1 <= start && start <= h8);
     ASSERT(a1 <= target && target <= h8);
-
-    if(is_casteling(move))
-    {
-        if(this->current_state->in_check) return false;
-        if(target == g1){
-            if (!(this->current_state->casteling_rights & WHITE_KINGSIDE_CASTELING)) return false;
-            Bitboard f1_g1 = (1ull << f1) | (1ull << g1);
-            return (f1_g1 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (f1_g1 & this->current_state->blocker_bitboard) == 0;
-        }
-        else if (target == c1)
-        {
-            if (!(this->current_state->casteling_rights & WHITE_QUEENSIDE_CASTELING)) return false;
-            Bitboard c1_d1 = (1ull << c1) | (1ull << d1);
-            Bitboard b1_c1_d1 = (1ull << b1) | c1_d1;
-            return (c1_d1 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (b1_c1_d1 & this->current_state->blocker_bitboard) == 0;
-        }
-        else if(target == g8)
-        {
-            if (!(this->current_state->casteling_rights & BLACK_KINGSIDE_CASTELING)) return false;
-            Bitboard f8_g8 = (1ull << f8) | (1ull << g8);
-            return (f8_g8 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (f8_g8 & this->current_state->blocker_bitboard) == 0;
-        }
-        else if(target == c8)
-        {
-            if (!(this->current_state->casteling_rights & BLACK_QUEENSIDE_CASTELING)) return false;
-            Bitboard c8_d8 = (1ull << c8) | (1ull << d8);
-            Bitboard b8_c8_d8 = (1ull << b8) | c8_d8;
-            return (c8_d8 & this->current_state->attack_bitboards[~this->color_to_move]) == 0 && (b8_c8_d8 & this->current_state->blocker_bitboard) == 0;
-            
-        }
-        else 
-           return false;
-    }
     
     if(get_square(this->current_state->pinner_bitboard, start))
     {
@@ -299,6 +298,7 @@ void Position::do_move(Move move)
     Square from = from_square(move);
     Piece moved = moved_piece(move);
     Piece captured = captured_piece(move);
+    int moved_pt = piece_type_of(moved);
 
     ASSERT(from != NO_SQUARE);
     ASSERT(to != NO_SQUARE);
@@ -319,7 +319,7 @@ void Position::do_move(Move move)
     if(this->current_state->en_passent != NO_SQUARE)
         zobrist::change_en_passent(&state->position_key, this->current_state->en_passent);
 
-    if(captured || piece_type_of(moved) == PAWN) 
+    if(captured || moved_pt == PAWN) 
     {
         //We need to reset the 50 moves counter, because the move was a capture or a pawn move
         state->fifty_moves = 0;
@@ -377,60 +377,60 @@ void Position::do_move(Move move)
         en_passent_moves++;
     }
 
-    //Revoke casteling rights
-    if(piece_type_of(moved) == KING)
+    if(CASTELING[this->color_to_move] & state->casteling_rights)
     {
-        if(this->color_to_move == white)
-            state->casteling_rights &= BLACK_CASTELING;
-        else
-            state->casteling_rights &= WHITE_CASTELING;
-    }
-    else if(piece_type_of(moved) == ROOK)
-    {
-        if(from == a1)
-            state->casteling_rights &= ~WHITE_QUEENSIDE_CASTELING;
-        else if(from == h1)
-            state->casteling_rights &= ~WHITE_KINGSIDE_CASTELING;
-        else if(from == a8)
-            state->casteling_rights &= ~BLACK_QUEENSIDE_CASTELING;
-        else if(from == h8)
-            state->casteling_rights &= ~BLACK_KINGSIDE_CASTELING; 
-    }
-
-    if(piece_type_of(captured) == ROOK)
-    {
-        if(to == a1)
-            state->casteling_rights &= ~WHITE_QUEENSIDE_CASTELING;
-        else if(to == h1)
-            state->casteling_rights &= ~WHITE_KINGSIDE_CASTELING;
-        else if(to == a8)
-            state->casteling_rights &= ~BLACK_QUEENSIDE_CASTELING;
-        else if(to == h8)
-            state->casteling_rights &= ~BLACK_KINGSIDE_CASTELING;
-    }
-    
-    if(is_casteling(move))
-    {
-        Square rook_from = NO_SQUARE;
-        Square rook_to = NO_SQUARE;
-        switch(to)
+        //Revoke casteling rights
+        if(moved_pt == KING)
         {
-            case c1: rook_from = a1; rook_to = d1; break;
-            case g1: rook_from = h1; rook_to = f1; break;
-            case c8: rook_from = a8; rook_to = d8; break;
-            case g8: rook_from = h8; rook_to = f8; break;
-            default: rook_from = NO_SQUARE; rook_to = NO_SQUARE; break;
+            state->casteling_rights &= CASTELING[~this->color_to_move];
         }
-        
-        ASSERT(rook_from != NO_SQUARE);
-        ASSERT(rook_to != NO_SQUARE);
+        else if(moved_pt == ROOK)
+        {
+            if(from == a1)
+                state->casteling_rights &= ~WHITE_QUEENSIDE_CASTELING;
+            else if(from == h1)
+                state->casteling_rights &= ~WHITE_KINGSIDE_CASTELING;
+            else if(from == a8)
+                state->casteling_rights &= ~BLACK_QUEENSIDE_CASTELING;
+            else if(from == h8)
+                state->casteling_rights &= ~BLACK_KINGSIDE_CASTELING; 
+        }
 
-        Piece rook = this->board[rook_from];
+        if(piece_type_of(captured) == ROOK)
+        {
+            if(to == a1)
+                state->casteling_rights &= ~WHITE_QUEENSIDE_CASTELING;
+            else if(to == h1)
+                state->casteling_rights &= ~WHITE_KINGSIDE_CASTELING;
+            else if(to == a8)
+                state->casteling_rights &= ~BLACK_QUEENSIDE_CASTELING;
+            else if(to == h8)
+                state->casteling_rights &= ~BLACK_KINGSIDE_CASTELING;
+        }
 
-        ASSERT(piece_type_of(rook) == ROOK);
+        if(is_casteling(move))
+        {
+            Square rook_from = NO_SQUARE;
+            Square rook_to = NO_SQUARE;
+            switch(to)
+            {
+                case c1: rook_from = a1; rook_to = d1; break;
+                case g1: rook_from = h1; rook_to = f1; break;
+                case c8: rook_from = a8; rook_to = d8; break;
+                case g8: rook_from = h8; rook_to = f8; break;
+                default: rook_from = NO_SQUARE; rook_to = NO_SQUARE; break;
+            }
+            
+            ASSERT(rook_from != NO_SQUARE);
+            ASSERT(rook_to != NO_SQUARE);
 
-        remove_piece(this, rook_from, &state->position_key, &state->material_key);
-        add_piece(this, rook_to, rook, &state->position_key, &state->material_key);
+            Piece rook = this->board[rook_from];
+
+            ASSERT(piece_type_of(rook) == ROOK);
+
+            remove_piece(this, rook_from, &state->position_key, &state->material_key);
+            add_piece(this, rook_to, rook, &state->position_key, &state->material_key);
+        }
     }
 
     ASSERT(this->piece_bitboard[WHITE_KING]);
@@ -490,6 +490,9 @@ void Position::undo_move()
 
 
         Piece rook = this->board[rook_to];
+
+        ASSERT(piece_type_of(rook) == ROOK);
+
         remove_piece(this, rook_to, &current_state->position_key, &current_state->material_key);
         add_piece(this, rook_from, rook, &current_state->position_key, &current_state->material_key);
     }

@@ -15,11 +15,11 @@ struct MoveExt
 };
 
 //Returns the pointer to the last move in the list
-MoveExt *generate_moves(Position *pos, MoveExt *moveList);
+MoveExt *generate_moves(Position *pos, MoveExt *moveList, bool only_captures);
 
 struct MoveList{
-    MoveList(Position *pos) {
-        MoveExt *last = generate_moves(pos, this->moveList); 
+    MoveList(Position *pos, bool only_captures) {
+        MoveExt *last = generate_moves(pos, this->moveList, only_captures); 
         this->size = last - this->moveList; 
     }
     int size;

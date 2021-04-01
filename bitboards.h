@@ -34,6 +34,14 @@ extern Bitboard ray_bitboards[64][64];
 //[from][to], rays that start at from (exclusive), go through to, but end at the end of the board
 extern Bitboard extended_ray_bitboards[64][64];
 
+extern Bitboard kingside_flank;
+extern Bitboard queenside_flank;
+extern Bitboard center_files;
+extern Bitboard white_kingside_pawnshield;
+extern Bitboard white_queenside_pawnshield;
+extern Bitboard black_kingside_pawnshield;
+extern Bitboard black_queenside_pawnshield;
+
 extern int manhattan_distance[64][64];
 
 extern void init_bitboards();

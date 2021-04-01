@@ -5,12 +5,12 @@
 
 int PIECE_CAPTURE_VALUES[13] = {0, 1, 2, 2, 3, 4, 5, 1, 2, 2, 3, 4, 5 };
 
-MoveExt *add_king_moves(Position *pos, MoveExt *move_list)
+MoveExt *add_king_moves(Position *pos, MoveExt *move_list, bool only_captures)
 {
     Piece our_king = make_piece(KING, pos->color_to_move);
     Square king_square = lsb(pos->piece_bitboard[our_king]);
     Bitboard king_moves = king_attack_bb(king_square) & ~pos->current_state->attack_bitboards[~pos->color_to_move] & ~pos->color_bitboard[pos->color_to_move];
-
+    if(only_captures) king_moves &= pos->color_bitboard[~pos->color_to_move];
     while (king_moves)
     {
         int target = pop_lsb(&king_moves);
@@ -26,18 +26,41 @@ MoveExt *add_casteling_moves(Position *pos, MoveExt *move_list)
 {
     if (pos->color_to_move == white)
     {
-        *move_list++ = MoveExt(make_move_casteling(e1, g1, WHITE_KING), 0);
-        *move_list++ = MoveExt(make_move_casteling(e1, c1, WHITE_KING), 0);
+        if(pos->current_state->casteling_rights & WHITE_KINGSIDE_CASTELING)
+        {
+            Bitboard f1_g1 = (1ull << f1) | (1ull << g1);
+            if ((f1_g1 & pos->current_state->attack_bitboards[~pos->color_to_move]) == 0 && (f1_g1 & pos->current_state->blocker_bitboard) == 0)
+                *move_list++ = MoveExt(make_move_casteling(e1, g1, WHITE_KING), 0);
+        }
+        if(pos->current_state->casteling_rights & WHITE_QUEENSIDE_CASTELING)
+        {
+            if(pos->board[e1] != WHITE_KING) printf("BRU");
+            Bitboard c1_d1 = (1ull << c1) | (1ull << d1);
+            Bitboard b1_c1_d1 = (1ull << b1) | c1_d1;
+            if ((c1_d1 & pos->current_state->attack_bitboards[~pos->color_to_move]) == 0 && (b1_c1_d1 & pos->current_state->blocker_bitboard) == 0)
+                *move_list++ = MoveExt(make_move_casteling(e1, c1, WHITE_KING), 0);
+        }
     }
     else
     {
-        *move_list++ = MoveExt(make_move_casteling(e8, g8, BLACK_KING), 0);
-        *move_list++ = MoveExt(make_move_casteling(e8, c8, BLACK_KING), 0);
+        if(pos->current_state->casteling_rights & BLACK_KINGSIDE_CASTELING)
+        {
+            Bitboard f8_g8 = (1ull << f8) | (1ull << g8);
+            if ((f8_g8 & pos->current_state->attack_bitboards[~pos->color_to_move]) == 0 && (f8_g8 & pos->current_state->blocker_bitboard) == 0)
+                *move_list++ = MoveExt(make_move_casteling(e8, g8, BLACK_KING), 0);
+        }
+        if(pos->current_state->casteling_rights & BLACK_QUEENSIDE_CASTELING)
+        {
+            Bitboard c8_d8 = (1ull << c8) | (1ull << d8);
+            Bitboard b8_c8_d8 = (1ull << b8) | c8_d8;
+            if ((c8_d8 & pos->current_state->attack_bitboards[~pos->color_to_move]) == 0 && (b8_c8_d8 & pos->current_state->blocker_bitboard) == 0)
+                *move_list++ = MoveExt(make_move_casteling(e8, c8, BLACK_KING), 0);
+        }
     }
     return move_list;
 }
 
-MoveExt *add_slider_moves(Position *pos, MoveExt *move_list)
+MoveExt *add_slider_moves(Position *pos, MoveExt *move_list, bool only_captures)
 {
     //Queens count as bishops and rooks
     Bitboard bishops = pos->piece_bitboard[make_piece(BISHOP, pos->color_to_move)] | pos->piece_bitboard[make_piece(QUEEN, pos->color_to_move)];
@@ -48,6 +71,7 @@ MoveExt *add_slider_moves(Position *pos, MoveExt *move_list)
     {
         Square bishop_square = pop_lsb(&bishops);
         Bitboard bishop_attacks = bishop_attack_bb(bishop_square, pos->current_state->blocker_bitboard) & pos->current_state->checker_bitboard & ~pos->color_bitboard[pos->color_to_move];
+        if(only_captures) bishop_attacks &= pos->color_bitboard[~pos->color_to_move];
         while (bishop_attacks)
         {
             Square target = pop_lsb(&bishop_attacks);
@@ -61,6 +85,7 @@ MoveExt *add_slider_moves(Position *pos, MoveExt *move_list)
     {
         Square rook_square = pop_lsb(&rooks);
         Bitboard rook_attacks = rook_attack_bb(rook_square, pos->current_state->blocker_bitboard) & pos->current_state->checker_bitboard & ~pos->color_bitboard[pos->color_to_move];
+        if(only_captures) rook_attacks &= pos->color_bitboard[~pos->color_to_move];
         while (rook_attacks)
         {
             Square target = pop_lsb(&rook_attacks);
@@ -73,7 +98,7 @@ MoveExt *add_slider_moves(Position *pos, MoveExt *move_list)
     return move_list;
 }
 
-MoveExt *add_knight_moves(Position *pos, MoveExt *move_list)
+MoveExt *add_knight_moves(Position *pos, MoveExt *move_list, bool only_captures)
 {
     Piece our_knight = make_piece(KNIGHT, pos->color_to_move);
     //Pinned knights cannot move
@@ -84,6 +109,7 @@ MoveExt *add_knight_moves(Position *pos, MoveExt *move_list)
         Square knight_square = pop_lsb(&knights);
         //We need to evade checks
         Bitboard targets = knight_attack_bb(knight_square) & pos->current_state->checker_bitboard & ~pos->color_bitboard[pos->color_to_move];
+        if(only_captures) targets &= pos->color_bitboard[~pos->color_to_move];
         while (targets)
         {
             Square target = pop_lsb(&targets);
@@ -109,7 +135,7 @@ inline MoveExt *make_promotions(Position *pos, Square from, Square to, MoveExt *
     return move_list + 4;
 }
 
-MoveExt *add_pawn_moves(Position *pos, MoveExt *move_list)
+MoveExt *add_pawn_moves(Position *pos, MoveExt *move_list, bool only_captures)
 {
     //ASSERT(pos->current_state->checker_bitboard);
 
@@ -172,6 +198,8 @@ MoveExt *add_pawn_moves(Position *pos, MoveExt *move_list)
         }
     }
 
+    if(only_captures) return move_list; //Early exit if in only capture mode
+
     Bitboard forward_once = pos->color_to_move == white ? shift<N>(pawns) : shift<S>(pawns);
     forward_once &= pos->current_state->free;
 
@@ -204,26 +232,26 @@ MoveExt *add_pawn_moves(Position *pos, MoveExt *move_list)
     return move_list;
 }
 
-MoveExt *generate_moves(Position *pos, MoveExt *move_list)
+MoveExt *generate_moves(Position *pos, MoveExt *move_list, bool only_captures)
 {
     //First, add the king moves
-    move_list = add_king_moves(pos, move_list);
+    move_list = add_king_moves(pos, move_list, only_captures);
 
     //if in double check, stop here, because only king moves are valid
     if (pos->current_state->in_double_check)
         return move_list;
 
     //add slider moves
-    move_list = add_slider_moves(pos, move_list);
+    move_list = add_slider_moves(pos, move_list, only_captures);
 
     //add knight moves
-    move_list = add_knight_moves(pos, move_list);
+    move_list = add_knight_moves(pos, move_list, only_captures);
 
     //add pawn moves
-    move_list = add_pawn_moves(pos, move_list);
+    move_list = add_pawn_moves(pos, move_list, only_captures);
     
     //if not in check, add casteling moves
-    if (!pos->current_state->in_check)
+    if (!pos->current_state->in_check && !only_captures) //Captures are never casteling moves
     {
         move_list = add_casteling_moves(pos, move_list);
     }

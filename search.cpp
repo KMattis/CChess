@@ -136,6 +136,8 @@ void do_search(Depth min_depth, Depth max_depth, Position *pos, int timeleft)
 template<NodeType T>
 int search(Depth depth, int alpha, int beta, Position *pos, SearchResult *res)
 {
+    res->nodes++;
+
     if(res->aborted)
         return DRAW;
     
@@ -164,8 +166,6 @@ int search(Depth depth, int alpha, int beta, Position *pos, SearchResult *res)
         return qsearch(alpha, beta, pos, res);
     }
 
-    res->nodes++;
-
     //Tablebase probe. TODO is this correct?
     TranspositionTableEntry *tte = tt->get_entry(pos->current_state->position_key);
     int ttScore = tte == nullptr ? LOOKUP_FAILED : tte->get_score(alpha, beta, depth);
@@ -178,7 +178,7 @@ int search(Depth depth, int alpha, int beta, Position *pos, SearchResult *res)
     }
 
     //Futility pruning
-    if(depth < 9) //Futility prune at shallow depths
+    if(depth <= 2) //Futility prune at shallow depths
     {
         int current_score = evaluate(pos);
         if(current_score + (200 * depth) + 100 < alpha)
@@ -207,7 +207,7 @@ int search(Depth depth, int alpha, int beta, Position *pos, SearchResult *res)
     }
 
     bool pv_search = true;
-    MovePicker mp(pos, tte, res->killers[0][pos->current_state->ply], res->killers[1][pos->current_state->ply], res);
+    MovePicker mp(pos, tte, res->killers[0][pos->current_state->ply], res->killers[1][pos->current_state->ply], res, false);
 
     //Multicut
     if (depth >= 5 && T == Cut) 
@@ -269,7 +269,7 @@ int search(Depth depth, int alpha, int beta, Position *pos, SearchResult *res)
         else
         {
             //Do a scout search if we already found a good move
-            score = -search<Cut>(depth - 1 - reduction, -alpha-1, -alpha, pos, res);
+            score = -search<Cut>(depth - 4, -alpha-1, -alpha, pos, res);
             if(score > alpha)
                 score = -search<(NodeType)-T>(depth - 1 - reduction, -beta, -alpha, pos, res);
         }
@@ -320,10 +320,11 @@ int search(Depth depth, int alpha, int beta, Position *pos, SearchResult *res)
 
 int qsearch(int alpha, int beta, Position *pos, SearchResult *res)
 {
+    res->nodes++;
+
     if(res->aborted)
         return DRAW;
     
-    res->nodes++;
     //We need no 50 moves check, because every move in qsearch is a capture or a pawn move
 
     TranspositionTableEntry *tte = tt->get_entry(pos->current_state->position_key);
@@ -350,7 +351,7 @@ int qsearch(int alpha, int beta, Position *pos, SearchResult *res)
         //So we can safely return alpha. TODO: Not in endgames
         return alpha;
     
-    MovePicker mp(pos, tte, res->killers[0][pos->current_state->ply], res->killers[1][pos->current_state->ply], res);
+    MovePicker mp(pos, tte, res->killers[0][pos->current_state->ply], res->killers[1][pos->current_state->ply], res, !pos->current_state->in_check);
 
     int num_searched_moves = 0;
 
@@ -359,48 +360,34 @@ int qsearch(int alpha, int beta, Position *pos, SearchResult *res)
     //Loop over all legal capture or promotion moves
     while((move = mp.next_move()) != NO_MOVE)
     {
-        Piece captured = captured_piece(move);
-        if(captured || is_promotion(move))
+        if(!pos->current_state->in_check && stand_pat + 200 + material::PIECE_VALUES[piece_type_of(captured_piece(move))] < alpha) //NON-Evasion moves might get pruned
+            continue;
+
+        //Search captures or promotions
+        pos->do_move(move);
+        int score = -qsearch(-beta, -alpha, pos, res);
+        pos->undo_move();
+
+        if(score >= beta)
         {
-            num_searched_moves++;
-
-            if(captured && stand_pat + 200 + material::PIECE_VALUES[piece_type_of(captured)] < alpha)
-                continue;
-
-            //Search captures or promotions
-            pos->do_move(move);
-            int score = -qsearch(-beta, -alpha, pos, res);
-            pos->undo_move();
-
-            if(score >= beta)
-            {
-                res->fh++;
-                if(num_searched_moves == 1)
-                    res->fhf++;
-                res->CutoffHistory[from_square(move)][to_square(move)]++;
-                add_killer(pos, res, move);
-                tt->store(pos->current_state->position_key, LowerBound, beta, move, -1, res->start_ply);
-                return beta;
-            }
-            else if(score > alpha)
-            {
-                alpha = score;
-                best_move = move;
-            }
+            res->fh++;
+            if(num_searched_moves == 1)
+                res->fhf++;
+            res->CutoffHistory[from_square(move)][to_square(move)]++;
+            add_killer(pos, res, move);
+            tt->store(pos->current_state->position_key, LowerBound, beta, move, -1, res->start_ply);
+            return beta;
+        }
+        else if(score > alpha)
+        {
+            alpha = score;
+            best_move = move;
         }
     }
 
-    if(!mp.legal_moves())
+    if(pos->current_state->in_check && !mp.legal_moves())
     {
-        //Checkmate if check, otherwise stalemate
-        if(pos->current_state->in_check)
-        {
-            return -CHECKMATE + pos->current_state->ply;
-        }
-        else
-        {
-            return DRAW;
-        }
+        return -CHECKMATE + pos->current_state->ply;
     }
 
     tt->store(pos->current_state->position_key, 

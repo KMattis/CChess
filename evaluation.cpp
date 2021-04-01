@@ -96,6 +96,10 @@ const int PASSED_PAWN_BONUS[8] = { 0, 15, 31, 99, 175, 229, 253 };
 
 const int SPACE_BONUS = 3;
 
+const int KING_IN_CENTER_BONUS = -70;
+const int KING_PAWNSHIELD_BONUS = 21; //per pawn
+const int KING_HALF_OPEN_FILE_BONUS = -21; //only if on flank
+
 //[is_open us][is_open them]
 const int ROOK_OPEN_FILE_BONUS[2][2] = {{ 80, 50 }, { 20, -20 }};
 
@@ -187,6 +191,53 @@ int evaluate(Position *pos)
 
     Bitboard white_pawns = pos->piece_bitboard[WHITE_PAWN];
     Bitboard black_pawns = pos->piece_bitboard[BLACK_PAWN];
+
+    if(pos->piece_bitboard[WHITE_KING] & center_files)
+    {
+        score += KING_IN_CENTER_BONUS;
+    }
+    else if(pos->piece_bitboard[WHITE_KING] & queenside_flank)
+    {
+        score += KING_PAWNSHIELD_BONUS * popcount(white_pawns & white_queenside_pawnshield);
+        for(int i = 0; i <= 2; i++)
+        {
+            if(!(white_pawns & file_bitboards[i]))
+                score += KING_HALF_OPEN_FILE_BONUS;
+        }
+    }
+    else //if(pos->piece_bitboard[WHITE_KING] & kingside_flank)
+    {
+        score += KING_PAWNSHIELD_BONUS * popcount(white_pawns & white_kingside_pawnshield);
+        for(int i = 5; i <= 7; i++)
+        {
+            if(!(white_pawns & file_bitboards[i]))
+                score += KING_HALF_OPEN_FILE_BONUS;
+        }
+    }
+
+    if(pos->piece_bitboard[BLACK_KING] & center_files)
+    {
+        score -= KING_IN_CENTER_BONUS;
+    }
+    else if(pos->piece_bitboard[BLACK_KING] & queenside_flank)
+    {
+        score -= KING_PAWNSHIELD_BONUS * popcount(black_pawns & black_queenside_pawnshield);
+        for(int i = 0; i <= 2; i++)
+        {
+            if(!(black_pawns & file_bitboards[i]))
+                score -= KING_HALF_OPEN_FILE_BONUS;
+        }
+    }
+    else //if(pos->piece_bitboard[BLACK_KING] & kingside_flank)
+    {
+        score -= KING_PAWNSHIELD_BONUS * popcount(black_pawns & black_kingside_pawnshield);
+        for(int i = 5; i <= 7; i++)
+        {
+            if(!(black_pawns & file_bitboards[i]))
+                score -= KING_HALF_OPEN_FILE_BONUS;
+        }
+    }
+
     while(white_pawns)
     {
         Square pawn_square = pop_lsb(&white_pawns);
@@ -213,6 +264,7 @@ int evaluate(Position *pos)
             score -= PASSED_PAWN_BONUS[7 - rank];
         score -= PAWN_SCORES[BLACK_MAPPER[pawn_square]];
     }
+
 
     //Space scores: Space is the amount of squares attacked, which are also in the enemies terretory
     int space_white = popcount(pos->current_state->attack_bitboards[white] | pos->color_bitboard[white]);

@@ -7,52 +7,26 @@
 #include "position.h"
 #include "movegen.h"
 #include "search.h"
-
+#include "io.h"
 
 
 #define INPUTBUFFER 400 * 6
 
 namespace uci
 {
-    char *move_to_string(Move move) {
-        static char mv_str[6]; // = (char *) malloc(6);
-        char pchar;
-
-        Square from = from_square(move);
-        Square to = to_square(move);
-        int ff = from % 8;
-        int rf = from / 8;
-        int ft = to % 8;
-        int rt = to / 8;
-
-
-        if(is_promotion(move)) {
-           int promoted = promoted_piece(move);
-            if(promoted == QUEEN) pchar = 'q';
-            if(promoted == ROOK) pchar = 'r';
-            if(promoted == BISHOP) pchar = 'b';
-            if(promoted == KNIGHT) pchar = 'n';
-            sprintf(mv_str, "%c%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt), pchar);
-        } else {
-            sprintf(mv_str, "%c%c%c%c", ('a' + ff), ('1' + rf), ('a' + ft), ('1' + rt));
-        }
-
-        return mv_str;
-    }
-
     void send_best_move(Move best_move)
     {
-        printf("bestmove %s\n", uci::move_to_string(best_move));
+        printf("bestmove %s\n", io::move_to_string(best_move));
         fflush(stdout);
     }
 
     void send_depth_info(SearchResult *res, int nps)
     {
         char *pv_string = (char *) malloc(2048);
-        sprintf(pv_string, "%s", move_to_string(res->pv[0]));
+        sprintf(pv_string, "%s", io::move_to_string(res->pv[0]));
         for(int i = 1; i < res->pv_length; i++)
         {
-            sprintf(pv_string, "%s %s", pv_string, move_to_string(res->pv[i]));
+            sprintf(pv_string, "%s %s", pv_string, io::move_to_string(res->pv[i]));
         }
 
         printf("info depth %i nodes %li score cp %i pv %s nps %i\n", res->search_depth, res->nodes, res->score, pv_string, nps);
@@ -63,7 +37,7 @@ namespace uci
 
     void send_move_info(int move_num, Move move, Depth depth)
     {
-        printf("info currmovenumber %i currmove %s depth %i\n", move_num, move_to_string(move), depth);
+        printf("info currmovenumber %i currmove %s depth %i\n", move_num, io::move_to_string(move), depth);
         fflush(stdout);
     }
 
@@ -100,7 +74,7 @@ namespace uci
         if(ptr_char[4] == 'n') promoted = KNIGHT;
         if(ptr_char[4] == 'b') promoted = BISHOP;
 
-        MoveList moves(pos);
+        MoveList moves(pos, false);
         for(int i = 0; i < moves.size; i++)
         {
             if(from_square(moves.moveList[i].move) == from && to_square(moves.moveList[i].move) == to)
@@ -112,7 +86,7 @@ namespace uci
                 }
             }
         }
-        printf("Move not found! Maybe not valid? %s\n", move_to_string(make_move(from, to, NO_PIECE, NO_PIECE)));
+        printf("Move not found! Maybe not valid? %s\n", io::move_to_string(make_move(from, to, NO_PIECE, NO_PIECE)));
     }
 
     void parse_pos(char *line, Position *pos)
@@ -144,7 +118,7 @@ namespace uci
     void go(Position *pos)
     {
         //Todo read timeleft
-        do_search(3, 40, pos, 10000);
+        do_search(6, 40, pos, 15000);
     }
 
     void loop()

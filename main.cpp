@@ -36,7 +36,7 @@ int count_positions(int startdepth, int depth, Position *pos)
 {
     if(depth == 0) return 1;
 
-    MoveList move_list(pos);
+    MoveList move_list(pos, false);
 
     int count = 0;
     for(int move_num = 0; move_num < move_list.size; move_num++)

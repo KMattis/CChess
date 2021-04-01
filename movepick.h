@@ -11,7 +11,7 @@ enum Stage
 class MovePicker
 {
 public:
-    MovePicker(Position *pos, TranspositionTableEntry *tte, Move killer0, Move killer1, SearchResult *res);
+    MovePicker(Position *pos, TranspositionTableEntry *tte, Move killer0, Move killer1, SearchResult *res, bool only_captures);
     ~MovePicker();
     Move next_move();
     int legal_moves() {return this->num_legal_moves;}
@@ -27,5 +27,6 @@ private:
     MoveList *list = nullptr;
     int move_num = 0;
     int num_legal_moves = 0;
+    bool only_captures;
 };
 
